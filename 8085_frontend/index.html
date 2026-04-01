@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Web-based 8085 Microprocessor Emulator — write assembly, load hex, and step through execution in real-time.">
+    <title>The 8085 Buddy — Microprocessor Emulator</title>
+
+    <!-- Digital 7-segment font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/kit.css">
+</head>
+<body>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         HEADER
+         ═══════════════════════════════════════════════════════════════════ -->
+    <header class="app-header">
+        <div class="header-left">
+            <span class="logo-icon">⚡</span>
+            <h1>The 8085 Buddy</h1>
+        </div>
+        <div class="header-right">
+            <span class="status-badge" id="statusBadge">READY</span>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         MAIN 3-PANEL LAYOUT
+         ═══════════════════════════════════════════════════════════════════ -->
+    <main class="main-grid">
+
+        <!-- ─── LEFT PANEL: THE KIT ───────────────────────────────────── -->
+        <section class="panel panel-kit" id="panelKit">
+            <div class="panel-header">
+                <h2>Training Kit</h2>
+            </div>
+            <div class="panel-body kit-body">
+
+                <!-- 7-Segment Display -->
+                <div class="display-unit">
+                    <div class="display-label">ADDRESS</div>
+                    <div class="seven-seg-group" id="addressDisplay">
+                        <span class="seg-digit" id="addr3">0</span>
+                        <span class="seg-digit" id="addr2">0</span>
+                        <span class="seg-digit" id="addr1">0</span>
+                        <span class="seg-digit" id="addr0">0</span>
+                    </div>
+                    <div class="display-separator"></div>
+                    <div class="display-label">DATA</div>
+                    <div class="seven-seg-group" id="dataDisplay">
+                        <span class="seg-digit" id="data1">0</span>
+                        <span class="seg-digit" id="data0">0</span>
+                    </div>
+                </div>
+
+                <!-- Hex Keypad -->
+                <div class="keypad" id="keypad">
+                    <button class="key hex" data-key="0">0</button>
+                    <button class="key hex" data-key="1">1</button>
+                    <button class="key hex" data-key="2">2</button>
+                    <button class="key hex" data-key="3">3</button>
+                    <button class="key hex" data-key="4">4</button>
+                    <button class="key hex" data-key="5">5</button>
+                    <button class="key hex" data-key="6">6</button>
+                    <button class="key hex" data-key="7">7</button>
+                    <button class="key hex" data-key="8">8</button>
+                    <button class="key hex" data-key="9">9</button>
+                    <button class="key hex" data-key="A">A</button>
+                    <button class="key hex" data-key="B">B</button>
+                    <button class="key hex" data-key="C">C</button>
+                    <button class="key hex" data-key="D">D</button>
+                    <button class="key hex" data-key="E">E</button>
+                    <button class="key hex" data-key="F">F</button>
+
+                    <button class="key func" id="btnExMem">EX<br>MEM</button>
+                    <button class="key func" id="btnNext">NEXT</button>
+                    <button class="key func accent" id="btnExec">EXEC</button>
+                    <button class="key func danger" id="btnReset">RESET</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── CENTER PANEL: EDITOR & CONSOLE ────────────────────────── -->
+        <section class="panel panel-editor" id="panelEditor">
+            <div class="panel-header">
+                <h2>Assembly Editor</h2>
+                <button class="btn btn-primary" id="btnAssemble">
+                    <span class="btn-icon">▶</span> Assemble
+                </button>
+            </div>
+            <div class="panel-body editor-body">
+                <textarea class="code-editor" id="codeEditor" spellcheck="false"
+                          placeholder="; Enter 8085 assembly here&#10;; Example:&#10;MVI A, 05&#10;MVI B, 03&#10;ADD B&#10;HLT"></textarea>
+
+                <div class="console-section">
+                    <div class="console-header">
+                        <span>Console</span>
+                        <button class="btn btn-ghost btn-small" id="btnClearConsole">Clear</button>
+                    </div>
+                    <div class="console-output" id="consoleOutput">
+                        <span class="console-line info">▸ 8085 Buddy ready. Write code or use the keypad.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─── RIGHT PANEL: DASHBOARD ─────────────────────────────────── -->
+        <section class="panel panel-dashboard" id="panelDashboard">
+            <div class="panel-header">
+                <h2>State Dashboard</h2>
+                <button class="btn btn-ghost btn-small" id="btnStepDash">
+                    <span class="btn-icon">⏭</span> Step
+                </button>
+            </div>
+            <div class="panel-body dashboard-body">
+
+                <!-- Registers Table -->
+                <div class="dash-card">
+                    <h3 class="dash-card-title">Registers</h3>
+                    <table class="state-table" id="registerTable">
+                        <thead>
+                            <tr><th>Reg</th><th>Hex</th><th>Dec</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr id="regA"><td>A</td><td class="val hex-val">00</td><td class="val dec-val">0</td></tr>
+                            <tr id="regB"><td>B</td><td class="val hex-val">00</td><td class="val dec-val">0</td></tr>
+                            <tr id="regC"><td>C</td><td class="val hex-val">00</td><td class="val dec-val">0</td></tr>
+                            <tr id="regD"><td>D</td><td class="val hex-val">00</td><td class="val dec-val">0</td></tr>
+                            <tr id="regE"><td>E</td><td class="val hex-val">00</td><td class="val dec-val">0</td></tr>
+                            <tr id="regH"><td>H</td><td class="val hex-val">00</td><td class="val dec-val">0</td></tr>
+                            <tr id="regL"><td>L</td><td class="val hex-val">00</td><td class="val dec-val">0</td></tr>
+                            <tr id="regPC" class="reg-special"><td>PC</td><td class="val hex-val">0000</td><td class="val dec-val">0</td></tr>
+                            <tr id="regSP" class="reg-special"><td>SP</td><td class="val hex-val">FFFF</td><td class="val dec-val">65535</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Flags Table -->
+                <div class="dash-card">
+                    <h3 class="dash-card-title">Flags</h3>
+                    <table class="state-table flag-table" id="flagTable">
+                        <thead>
+                            <tr><th>S</th><th>Z</th><th>AC</th><th>P</th><th>CY</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="val flag-val" id="flagS">0</td>
+                                <td class="val flag-val" id="flagZ">0</td>
+                                <td class="val flag-val" id="flagAC">0</td>
+                                <td class="val flag-val" id="flagP">0</td>
+                                <td class="val flag-val" id="flagCY">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Memory View -->
+                <div class="dash-card dash-card-grow">
+                    <h3 class="dash-card-title">Memory</h3>
+                    <div class="memory-table-wrap">
+                        <table class="state-table memory-table" id="memoryTable">
+                            <thead>
+                                <tr><th>Address</th><th>Data</th></tr>
+                            </thead>
+                            <tbody id="memoryTableBody">
+                                <tr><td colspan="2" class="empty-state">No data loaded</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/emulator.js"></script>
+</body>
+</html>
