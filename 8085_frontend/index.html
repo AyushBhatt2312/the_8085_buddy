@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Web-based 8085 Microprocessor Emulator — write assembly, load hex, and step through execution in real-time.">
+    <meta name="description"
+        content="Web-based 8085 Microprocessor Emulator — write assembly, load hex, and step through execution in real-time.">
     <title>The 8085 Buddy — Microprocessor Emulator</title>
 
     <!-- Digital 7-segment font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@400;700;900&display=swap"
+        rel="stylesheet">
 
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/kit.css">
 </head>
+
 <body>
 
     <!-- ═══════════════════════════════════════════════════════════════════
@@ -93,8 +98,11 @@
                 </button>
             </div>
             <div class="panel-body editor-body">
-                <textarea class="code-editor" id="codeEditor" spellcheck="false"
-                          placeholder="; Enter 8085 assembly here&#10;; Example:&#10;MVI A, 05&#10;MVI B, 03&#10;ADD B&#10;HLT"></textarea>
+                <div class="editor-container">
+                    <div class="addr-gutter" id="addrGutter"></div>
+                    <textarea class="code-editor" id="codeEditor" spellcheck="false"
+                        placeholder="; Enter 8085 assembly here&#10;; Example:&#10;MVI A, 05&#10;MVI B, 03&#10;ADD B&#10;HLT"></textarea>
+                </div>
 
                 <div class="console-section">
                     <div class="console-header">
@@ -123,18 +131,58 @@
                     <h3 class="dash-card-title">Registers</h3>
                     <table class="state-table" id="registerTable">
                         <thead>
-                            <tr><th>Reg</th><th>Hex</th><th>Dec</th></tr>
+                            <tr>
+                                <th>Reg</th>
+                                <th>Hex</th>
+                                <th>Dec</th>
+                            </tr>
                         </thead>
                         <tbody>
-                            <tr id="regA"><td>A</td><td class="val hex-val">00</td><td class="val dec-val">0</td></tr>
-                            <tr id="regB"><td>B</td><td class="val hex-val">00</td><td class="val dec-val">0</td></tr>
-                            <tr id="regC"><td>C</td><td class="val hex-val">00</td><td class="val dec-val">0</td></tr>
-                            <tr id="regD"><td>D</td><td class="val hex-val">00</td><td class="val dec-val">0</td></tr>
-                            <tr id="regE"><td>E</td><td class="val hex-val">00</td><td class="val dec-val">0</td></tr>
-                            <tr id="regH"><td>H</td><td class="val hex-val">00</td><td class="val dec-val">0</td></tr>
-                            <tr id="regL"><td>L</td><td class="val hex-val">00</td><td class="val dec-val">0</td></tr>
-                            <tr id="regPC" class="reg-special"><td>PC</td><td class="val hex-val">0000</td><td class="val dec-val">0</td></tr>
-                            <tr id="regSP" class="reg-special"><td>SP</td><td class="val hex-val">FFFF</td><td class="val dec-val">65535</td></tr>
+                            <tr id="regA">
+                                <td>A</td>
+                                <td class="val hex-val">00</td>
+                                <td class="val dec-val">0</td>
+                            </tr>
+                            <tr id="regB">
+                                <td>B</td>
+                                <td class="val hex-val">00</td>
+                                <td class="val dec-val">0</td>
+                            </tr>
+                            <tr id="regC">
+                                <td>C</td>
+                                <td class="val hex-val">00</td>
+                                <td class="val dec-val">0</td>
+                            </tr>
+                            <tr id="regD">
+                                <td>D</td>
+                                <td class="val hex-val">00</td>
+                                <td class="val dec-val">0</td>
+                            </tr>
+                            <tr id="regE">
+                                <td>E</td>
+                                <td class="val hex-val">00</td>
+                                <td class="val dec-val">0</td>
+                            </tr>
+                            <tr id="regH">
+                                <td>H</td>
+                                <td class="val hex-val">00</td>
+                                <td class="val dec-val">0</td>
+                            </tr>
+                            <tr id="regL">
+                                <td>L</td>
+                                <td class="val hex-val">00</td>
+                                <td class="val dec-val">0</td>
+                            </tr>
+                            <tr id="regPC" class="reg-special">
+                                <td>PC</td>
+                                <td class="val hex-val">0000</td>
+                                <td class="val dec-val">0</td>
+                            </tr>
+                            <tr id="regSP" class="reg-special">
+                                <td>SP</td>
+                                <td class="val hex-val">FFFF</td>
+                                <td class="val dec-val">65535</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -144,7 +192,13 @@
                     <h3 class="dash-card-title">Flags</h3>
                     <table class="state-table flag-table" id="flagTable">
                         <thead>
-                            <tr><th>S</th><th>Z</th><th>AC</th><th>P</th><th>CY</th></tr>
+                            <tr>
+                                <th>S</th>
+                                <th>Z</th>
+                                <th>AC</th>
+                                <th>P</th>
+                                <th>CY</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <tr>
@@ -164,10 +218,15 @@
                     <div class="memory-table-wrap">
                         <table class="state-table memory-table" id="memoryTable">
                             <thead>
-                                <tr><th>Address</th><th>Data</th></tr>
+                                <tr>
+                                    <th>Address</th>
+                                    <th>Data</th>
+                                </tr>
                             </thead>
                             <tbody id="memoryTableBody">
-                                <tr><td colspan="2" class="empty-state">No data loaded</td></tr>
+                                <tr>
+                                    <td colspan="2" class="empty-state">No data loaded</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -182,4 +241,5 @@
     <script src="js/ui.js"></script>
     <script src="js/emulator.js"></script>
 </body>
+
 </html>

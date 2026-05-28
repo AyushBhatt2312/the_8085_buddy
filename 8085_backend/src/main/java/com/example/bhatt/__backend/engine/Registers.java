@@ -1,10 +1,6 @@
 package com.example.bhatt.__backend.engine;
 
-/**
- * Represents the 8085 microprocessor register set.
- * All 8-bit registers are stored as int (0–255) to avoid Java signed-byte issues.
- * 16-bit registers (PC, SP) range 0–65535.
- */
+
 public class Registers {
 
     // 8-bit general-purpose registers
@@ -24,7 +20,7 @@ public class Registers {
         reset();
     }
 
-    /** Resets all registers to zero. SP defaults to 0xFFFF. */
+
     public void reset() {
         a = 0;
         b = 0;
@@ -39,17 +35,14 @@ public class Registers {
 
     // ── Register pair helpers ────────────────────────────────────────────
 
-    /** Returns the 16-bit value formed by H (high) and L (low). */
     public int getHL() {
         return ((h & 0xFF) << 8) | (l & 0xFF);
     }
 
-    /** Returns the 16-bit value formed by B (high) and C (low). */
     public int getBC() {
         return ((b & 0xFF) << 8) | (c & 0xFF);
     }
 
-    /** Returns the 16-bit value formed by D (high) and E (low). */
     public int getDE() {
         return ((d & 0xFF) << 8) | (e & 0xFF);
     }
@@ -71,11 +64,6 @@ public class Registers {
 
     // ── Generic register access by index (for MOV/MVI decode) ────────────
 
-    /**
-     * Returns the value of a register identified by its 3-bit code:
-     *   0=B, 1=C, 2=D, 3=E, 4=H, 5=L, 6=M(memory via HL), 7=A
-     * Code 6 (M) is NOT handled here — the caller must use Memory.
-     */
     public int getByCode(int code) {
         return switch (code) {
             case 0 -> b;
@@ -89,10 +77,6 @@ public class Registers {
         };
     }
 
-    /**
-     * Sets the value of a register identified by its 3-bit code.
-     * Code 6 (M) is NOT handled here.
-     */
     public void setByCode(int code, int value) {
         int masked = value & 0xFF;
         switch (code) {

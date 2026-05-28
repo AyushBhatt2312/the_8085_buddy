@@ -17,7 +17,18 @@ const EmulatorAPI = {
     },
 
     /**
-     * Loads hex codes into memory starting at the given address.
+     * Resets registers and flags but KEEPS memory intact.
+     * @returns {Promise<Object>} EmulatorStateDto
+     */
+    async resetCpu() {
+        const res = await fetch(`${API_BASE}/reset-cpu`, { method: 'POST' });
+        if (!res.ok) throw new Error(`CPU reset failed: ${res.status}`);
+        return res.json();
+    },
+
+    /**
+     * Loads hex codes into memory AND sets PC to startAddress.
+     * Use this for loading assembled programs.
      * @param {number} startAddress - 16-bit start address
      * @param {number[]} hexCodes   - array of byte values (0–255)
      * @returns {Promise<Object>} EmulatorStateDto
@@ -29,6 +40,23 @@ const EmulatorAPI = {
             body: JSON.stringify({ startAddress, hexCodes })
         });
         if (!res.ok) throw new Error(`Load failed: ${res.status}`);
+        return res.json();
+    },
+
+    /**
+     * Writes hex codes into memory WITHOUT changing PC.
+     * Use this for manual data entry via the keypad.
+     * @param {number} startAddress - 16-bit start address
+     * @param {number[]} hexCodes   - array of byte values (0–255)
+     * @returns {Promise<Object>} EmulatorStateDto
+     */
+    async writeMemory(startAddress, hexCodes) {
+        const res = await fetch(`${API_BASE}/write-memory`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ startAddress, hexCodes })
+        });
+        if (!res.ok) throw new Error(`Write memory failed: ${res.status}`);
         return res.json();
     },
 

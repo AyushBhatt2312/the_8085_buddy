@@ -326,6 +326,81 @@ const Emulator = (() => {
         return parseInt(str, 10);
     }
 
+    // ── Instruction size calculator (for address gutter) ─────────────────
+
+    /** Returns the byte size of a mnemonic, or 0 for comments/blanks. */
+    function getInstructionSize(mnemonic) {
+        // 3-byte instructions: those with 16-bit address or data16 operand
+        const three = new Set([
+            'LXI','LDA','STA','LHLD','SHLD','JMP','JNZ','JZ','JNC','JC',
+            'JPO','JPE','JP','JM','CALL','CNZ','CZ','CNC','CC','CPO','CPE','CP','CM'
+        ]);
+        // 2-byte instructions: those with 8-bit immediate operand
+        const two = new Set([
+            'MVI','ADI','ACI','SUI','SBI','ANI','XRI','ORI','CPI','IN','OUT'
+        ]);
+        if (three.has(mnemonic)) return 3;
+        if (two.has(mnemonic)) return 2;
+        // All remaining valid mnemonics are 1-byte
+        const one = new Set([
+            'NOP','HLT','MOV','ADD','ADC','SUB','SBB','INR','DCR','INX','DCX','DAD',
+            'ANA','XRA','ORA','CMP','CMA','DAA','STC','CMC','RLC','RRC','RAL','RAR',
+            'PUSH','POP','XCHG','XTHL','SPHL','PCHL','RET','RNZ','RZ','RNC','RC',
+            'RPO','RPE','RP','RM','RST','EI','DI','RIM','SIM',
+            'LDAX','STAX'
+        ]);
+        if (one.has(mnemonic)) return 1;
+        return 0; // unknown/comment/blank
+    }
+
+    /** Updates the address gutter to show memory addresses per line. */
+    function updateAddrGutter() {
+        const editor = document.getElementById('codeEditor');
+        const gutter = document.getElementById('addrGutter');
+        if (!editor || !gutter) return;
+
+        const lines = editor.value.split('\n');
+        let addr = 0x0000; // start address
+        let html = '';
+
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+            // Strip comments
+            const commentIdx = line.indexOf(';');
+            if (commentIdx >= 0) line = line.substring(0, commentIdx).trim();
+
+            if (line.length === 0) {
+                // Empty or comment-only line — show blank gutter
+                html += `<div class="addr-gutter-line"></div>`;
+                continue;
+            }
+
+            const parts = line.toUpperCase().replace(/,/g, ' ').split(/\s+/);
+            const mnemonic = parts[0];
+            const size = getInstructionSize(mnemonic);
+
+            if (size > 0) {
+                const addrStr = addr.toString(16).toUpperCase().padStart(4, '0');
+                html += `<div class="addr-gutter-line has-code">${addrStr}</div>`;
+                addr = (addr + size) & 0xFFFF;
+            } else {
+                // Unknown mnemonic — show with error styling
+                html += `<div class="addr-gutter-line">----</div>`;
+            }
+        }
+
+        gutter.innerHTML = html;
+    }
+
+    /** Syncs the gutter scroll with the textarea scroll. */
+    function syncGutterScroll() {
+        const editor = document.getElementById('codeEditor');
+        const gutter = document.getElementById('addrGutter');
+        if (editor && gutter) {
+            gutter.scrollTop = editor.scrollTop;
+        }
+    }
+
     // ── Initialization ───────────────────────────────────────────────────
     function init() {
         // Hex keypad buttons
@@ -348,9 +423,15 @@ const Emulator = (() => {
         // Console clear
         document.getElementById('btnClearConsole').addEventListener('click', () => UI.clearConsole());
 
+        // Editor → address gutter updates
+        const editor = document.getElementById('codeEditor');
+        editor.addEventListener('input', updateAddrGutter);
+        editor.addEventListener('scroll', syncGutterScroll);
+
         // Initial display
         UI.setDisplay('0000', '00');
         UI.log('System initialized. Enter address on the keypad or write assembly.', 'info');
+        updateAddrGutter();
     }
 
     // ── Keypad Handlers ──────────────────────────────────────────────────
@@ -398,9 +479,9 @@ const Emulator = (() => {
             // Store current data at current address, advance to next
             if (dataBuffer.length > 0) {
                 const value = parseInt(dataBuffer, 16);
-                // Load single byte
+                // Write single byte to memory (without changing PC)
                 try {
-                    const state = await EmulatorAPI.load(currentAddress, [value]);
+                    const state = await EmulatorAPI.writeMemory(currentAddress, [value]);
                     UI.updateDashboard(state);
                 } catch (e) {
                     UI.log(`Error loading: ${e.message}`, 'error');
@@ -429,7 +510,7 @@ const Emulator = (() => {
         if (mode === 'data' && dataBuffer.length > 0) {
             const value = parseInt(dataBuffer, 16);
             try {
-                await EmulatorAPI.load(currentAddress, [value]);
+                await EmulatorAPI.writeMemory(currentAddress, [value]);
             } catch (e) {
                 UI.log(`Error loading: ${e.message}`, 'error');
                 return;
@@ -497,8 +578,8 @@ const Emulator = (() => {
         // Default load address: 0x0000
         const loadAddr = 0x0000;
         try {
-            // Reset first
-            await EmulatorAPI.reset();
+            // Soft reset: clear registers/flags but KEEP memory data
+            await EmulatorAPI.resetCpu();
             const state = await EmulatorAPI.load(loadAddr, hexCodes);
             UI.updateDashboard(state);
             UI.log(`Loaded at 0x${loadAddr.toString(16).toUpperCase().padStart(4, '0')}. Press Step to execute.`, 'success');

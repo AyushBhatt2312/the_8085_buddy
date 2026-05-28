@@ -10,29 +10,32 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-/**
- * Manages the lifecycle of the 8085 CpuCore.
- * Holds a single emulator instance and exposes reset / load / step / state operations.
- */
+
 @Service
 public class EmulatorService {
 
     private final CpuCore cpu = new CpuCore();
 
-    /**
-     * Tracks which memory addresses have been written to, so the state DTO
-     * only returns "interesting" memory rather than all 64 KB.
-     */
     private final java.util.Set<Integer> touchedAddresses = new java.util.TreeSet<>();
 
     // ── Operations ───────────────────────────────────────────────────────
 
+    /** Full reset: clears registers, flags, AND all memory. */
     public EmulatorStateDto reset() {
         cpu.reset();
         touchedAddresses.clear();
         return buildState("RESET");
     }
 
+    /** Soft reset: clears registers and flags but KEEPS memory intact. */
+    public EmulatorStateDto resetCpu() {
+        cpu.getRegisters().reset();
+        cpu.getFlags().reset();
+        cpu.setHalted(false);
+        return buildState("CPU RESET (memory preserved)");
+    }
+
+    /** Loads hex codes into memory AND sets PC to startAddress (for program loading). */
     public EmulatorStateDto loadProgram(int startAddress, java.util.List<Integer> hexCodes) {
         int addr = startAddress & 0xFFFF;
         for (int code : hexCodes) {
@@ -43,6 +46,18 @@ public class EmulatorService {
         // Set PC to the start address so execution begins there
         cpu.getRegisters().setPc(startAddress);
         return buildState("LOADED " + hexCodes.size() + " bytes at 0x"
+                + String.format("%04X", startAddress & 0xFFFF));
+    }
+
+    /** Writes hex codes into memory WITHOUT changing PC (for data entry via keypad). */
+    public EmulatorStateDto writeMemory(int startAddress, java.util.List<Integer> hexCodes) {
+        int addr = startAddress & 0xFFFF;
+        for (int code : hexCodes) {
+            cpu.getMemory().write(addr, code);
+            touchedAddresses.add(addr);
+            addr = (addr + 1) & 0xFFFF;
+        }
+        return buildState("WROTE " + hexCodes.size() + " bytes at 0x"
                 + String.format("%04X", startAddress & 0xFFFF));
     }
 

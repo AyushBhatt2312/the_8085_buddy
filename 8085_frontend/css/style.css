@@ -204,25 +204,68 @@ html, body {
     gap: 12px;
 }
 
+.editor-container {
+    flex: 1;
+    display: flex;
+    min-height: 200px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--bg-input);
+    transition: border-color var(--transition);
+}
+
+.editor-container:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* ── Address Gutter ───────────────────────────────────────────────── */
+.addr-gutter {
+    width: 58px;
+    min-width: 58px;
+    padding: 16px 0;
+    background: var(--bg-panel-alt);
+    border-right: 1px solid var(--border);
+    overflow: hidden;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.addr-gutter-line {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.7;
+    height: calc(14px * 1.7);
+    padding: 0 8px;
+    text-align: right;
+    color: var(--text-dim);
+    white-space: nowrap;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+.addr-gutter-line.has-code {
+    color: var(--accent-dim);
+}
+
+.addr-gutter-line.active-line {
+    color: var(--accent);
+    background: rgba(56, 189, 248, 0.08);
+    font-weight: 600;
+}
+
+/* ── Code Editor (inside container) ───────────────────────────────── */
 .code-editor {
     flex: 1;
-    min-height: 200px;
     padding: 16px;
-    background: var(--bg-input);
+    background: transparent;
     color: var(--text-primary);
     font-family: var(--font-mono);
     font-size: 14px;
     line-height: 1.7;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    border: none;
     resize: none;
     outline: none;
-    transition: border-color var(--transition);
-}
-
-.code-editor:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
 .code-editor::placeholder {

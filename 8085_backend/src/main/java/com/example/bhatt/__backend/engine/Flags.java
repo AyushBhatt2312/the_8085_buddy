@@ -63,25 +63,16 @@ public class Flags {
         }
     }
 
-    /**
-     * Convenience method: update flags for an addition.
-     */
+
     public void updateFlagsAdd(int result, int operand1, int operand2) {
         updateFlags(result, operand1, operand2, false);
     }
 
-    /**
-     * Convenience method: update flags for a subtraction.
-     */
+
     public void updateFlagsSub(int result, int operand1, int operand2) {
         updateFlags(result, operand1, operand2, true);
     }
 
-    /**
-     * Updates flags for logical operations (ANA, ORA, XRA, ANI, ORI, XRI).
-     * CY is cleared. AC is set for ANA/ANI (isAnd=true), cleared otherwise.
-     * S, Z, P are set normally.
-     */
     public void updateFlagsLogical(int result, boolean isAnd) {
         int masked = result & 0xFF;
         sign = (masked & 0x80) != 0;
@@ -91,9 +82,6 @@ public class Flags {
         auxiliaryCarry = isAnd;               // AC set for ANA/ANI, cleared otherwise
     }
 
-    /**
-     * Updates flags for INR (increment). CY is NOT affected.
-     */
     public void updateFlagsInr(int result, int operand) {
         int masked = result & 0xFF;
         sign = (masked & 0x80) != 0;

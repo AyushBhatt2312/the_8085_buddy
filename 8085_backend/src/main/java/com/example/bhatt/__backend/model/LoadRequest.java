@@ -2,9 +2,7 @@ package com.example.bhatt.__backend.model;
 
 import java.util.List;
 
-/**
- * Request body for the POST /api/load endpoint.
- */
+
 public class LoadRequest {
 
     private int startAddress;

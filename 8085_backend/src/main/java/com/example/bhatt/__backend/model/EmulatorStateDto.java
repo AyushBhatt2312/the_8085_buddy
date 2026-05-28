@@ -2,10 +2,6 @@ package com.example.bhatt.__backend.model;
 
 import java.util.Map;
 
-/**
- * Data Transfer Object that holds a complete snapshot of the emulator state.
- * Returned by all mutating API endpoints so the frontend can update its dashboard.
- */
 public class EmulatorStateDto {
 
     private Map<String, Integer> registers;

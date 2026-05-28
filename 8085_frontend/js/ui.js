@@ -11,9 +11,9 @@ const UI = (() => {
 
     // ── DOM references ───────────────────────────────────────────────────
     const dom = {
-        consoleOutput:    () => document.getElementById('consoleOutput'),
-        statusBadge:      () => document.getElementById('statusBadge'),
-        memoryTableBody:  () => document.getElementById('memoryTableBody'),
+        consoleOutput: () => document.getElementById('consoleOutput'),
+        statusBadge: () => document.getElementById('statusBadge'),
+        memoryTableBody: () => document.getElementById('memoryTableBody'),
         // 7-seg display
         addr3: () => document.getElementById('addr3'),
         addr2: () => document.getElementById('addr2'),

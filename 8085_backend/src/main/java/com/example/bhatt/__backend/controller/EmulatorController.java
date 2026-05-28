@@ -5,9 +5,7 @@ import com.example.bhatt.__backend.model.LoadRequest;
 import com.example.bhatt.__backend.service.EmulatorService;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * REST controller exposing the 8085 emulator API.
- */
+
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*")
@@ -25,10 +23,22 @@ public class EmulatorController {
         return emulatorService.reset();
     }
 
-    /** Loads hex codes into memory starting at the given address. */
+    /** Resets registers and flags but keeps memory intact. */
+    @PostMapping("/reset-cpu")
+    public EmulatorStateDto resetCpu() {
+        return emulatorService.resetCpu();
+    }
+
+    /** Loads hex codes into memory starting at the given address AND sets PC. */
     @PostMapping("/load")
     public EmulatorStateDto load(@RequestBody LoadRequest request) {
         return emulatorService.loadProgram(request.getStartAddress(), request.getHexCodes());
+    }
+
+    /** Writes hex codes into memory WITHOUT changing PC (for data entry). */
+    @PostMapping("/write-memory")
+    public EmulatorStateDto writeMemory(@RequestBody LoadRequest request) {
+        return emulatorService.writeMemory(request.getStartAddress(), request.getHexCodes());
     }
 
     /** Executes one instruction and returns the updated state. */

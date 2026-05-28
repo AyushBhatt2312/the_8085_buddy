@@ -24,7 +24,7 @@ public class CpuCore {
 
     // ── Public API ───────────────────────────────────────────────────────
 
-    /** Resets CPU and memory to initial state. */
+
     public void reset() {
         registers.reset();
         flags.reset();
@@ -33,10 +33,7 @@ public class CpuCore {
         interruptsEnabled = false;
     }
 
-    /**
-     * Executes a single instruction at the current PC.
-     * @return the mnemonic string of the executed instruction (for logging).
-     */
+
     public String step() {
         if (halted) {
             return "HALTED";
@@ -52,14 +49,13 @@ public class CpuCore {
 
     // ── Fetch helpers ────────────────────────────────────────────────────
 
-    /** Fetches the byte at PC and increments PC. */
+
     private int fetchByte() {
         int value = memory.read(registers.getPc());
         registers.setPc(registers.getPc() + 1);
         return value;
     }
 
-    /** Fetches a 16-bit word (little-endian) at PC, advancing PC by 2. */
     private int fetchWord() {
         int low = fetchByte();
         int high = fetchByte();
@@ -733,4 +729,5 @@ public class CpuCore {
     public Flags     getFlags()     { return flags; }
     public Memory    getMemory()    { return memory; }
     public boolean   isHalted()     { return halted; }
+    public void      setHalted(boolean h) { halted = h; }
 }
